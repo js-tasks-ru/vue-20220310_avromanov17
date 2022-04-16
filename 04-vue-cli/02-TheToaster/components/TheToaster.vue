@@ -3,10 +3,8 @@
     <ui-toast
       v-for="toast in toasts"
       :key="toast.message"
-      :class="`toast_${toast.type}`"
+      :type="toast.type"
       :message="toast.message"
-      :icon="toast.icon"
-      :removeToastTimeoutMs="toast.removeToastTimeoutMs"
       @removeToastAfterTimeout="removeToastAfterTimeout"
     />
   </div>
@@ -31,23 +29,24 @@ export default {
       this.toasts.push({
         message,
         type: 'success',
-        icon: 'check-circle',
-        removeToastTimeoutMs: 5000,
       });
+      const removeSuccessToastTimeoutMs = 5000;
+      this.removeToastAfterTimeout({ message, timeoutMs: removeSuccessToastTimeoutMs });
     },
     error(message) {
       this.toasts.push({
         message,
         type: 'error',
-        icon: 'alert-circle',
       });
+      this.removeToastAfterTimeout({ message });
     },
-    removeToastAfterTimeout(toastMessage, timeout) {
+    removeToastAfterTimeout(toast) {
+      const { message, timeoutMs = 5000 } = toast;
       setTimeout(() => {
         if (this.toasts.length) {
-          this.toasts = this.toasts.filter((toast) => toast.message !== toastMessage);
+          this.toasts = this.toasts.filter((toast) => toast.message !== message);
         }
-      }, timeout);
+      }, timeoutMs);
     },
   },
 };

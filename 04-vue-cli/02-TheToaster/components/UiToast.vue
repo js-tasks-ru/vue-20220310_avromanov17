@@ -1,5 +1,5 @@
 <template>
-  <div class="toast" @click="hideToast">
+  <div class="toast" :class="`toast_${type}`" @click="hideToast">
     <ui-icon class="toast__icon" :icon="icon" />
     <span>{{ message }}</span>
   </div>
@@ -18,13 +18,9 @@ export default {
       type: String,
       required: true,
     },
-    icon: {
+    type: {
       type: String,
       required: true,
-    },
-    removeToastTimeoutMs: {
-      type: Number,
-      default: 5000,
     },
   },
 
@@ -36,14 +32,25 @@ export default {
     };
   },
 
-  mounted() {
-    this.$emit('removeToastAfterTimeout', this.message, this.removeToastTimeoutMs);
+  computed: {
+    icon() {
+      switch (this.type) {
+        case 'success':
+          return 'check-circle';
+        default:
+          return 'alert-circle';
+      }
+    },
   },
 
   methods: {
     hideToast() {
       const timeoutToHideNow = 0;
-      this.$emit('removeToastAfterTimeout', this.message, timeoutToHideNow);
+      const toastToHideNow = {
+        message: this.message,
+        timeoutMs: timeoutToHideNow,
+      };
+      this.$emit('removeToastAfterTimeout', toastToHideNow);
     },
   },
 };
