@@ -65,12 +65,14 @@ export default {
   data() {
     return {
       isOpened: false,
-      hasIcon: false,
       currentValue: '',
     };
   },
 
   computed: {
+    hasIcon() {
+      return this.options.some((option) => option.icon);
+    },
     text() {
       const option = this.options.filter((option) => option.value === this.modelValue)[0];
       return option ? option.text : this.title;
@@ -91,7 +93,6 @@ export default {
   },
 
   created() {
-    this.hasIcon = this.options.some((option) => option.icon);
     this.currentValue = this.modelValue ? this.modelValue : this.title;
   },
 
