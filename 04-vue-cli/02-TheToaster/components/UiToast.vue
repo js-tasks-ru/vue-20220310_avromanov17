@@ -9,7 +9,7 @@
 import UiIcon from './UiIcon.vue';
 
 export default {
-  name: 'Toast',
+  name: 'UiToast',
 
   components: { UiIcon },
 
