@@ -1,10 +1,42 @@
 <template>
-  <button class="button button_secondary button_block">BUTTON</button>
+  <component :is="tag" :class="composedClass" :type="composedType">
+    <slot />
+  </component>
 </template>
 
 <script>
 export default {
   name: 'UiButton',
+
+  props: {
+    tag: {
+      type: [String, Object],
+      default: 'button',
+    },
+    variant: {
+      type: String,
+      default: 'secondary',
+    },
+    block: Boolean,
+    type: {
+      type: String,
+    },
+  },
+
+  computed: {
+    composedClass() {
+      const buttonBlockClass = this.block ? 'button_block' : '';
+      return `button button_${this.variant} ${buttonBlockClass}`;
+    },
+    composedType() {
+      if (this.type) {
+        return this.type;
+      } else if (this.tag === 'button') {
+        return 'button';
+      }
+      return undefined;
+    },
+  },
 };
 </script>
 
