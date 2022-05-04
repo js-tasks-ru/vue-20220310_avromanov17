@@ -1,13 +1,25 @@
 <template>
-  <div class="input-group input-group_icon input-group_icon-left input-group_icon-right">
-    <div class="input-group__icon">
-      <img class="icon" alt="icon" />
+  <div class="input-group" :class="iconClasses">
+    <div v-if="$slots['left-icon']" class="input-group__icon">
+      <slot name="left-icon" class="input-group_icon input-group_icon-left" />
     </div>
 
-    <input ref="input" class="form-control form-control_rounded form-control_sm" />
+    <component
+      :is="elem"
+      ref="input"
+      v-bind="$attrs"
+      class="form-control"
+      :class="{
+        'form-control_sm': small,
+        'form-control_rounded': rounded,
+      }"
+      :value="modelValue"
+      @[inputEvent]="onInput"
+    >
+    </component>
 
-    <div class="input-group__icon">
-      <img class="icon" alt="icon" />
+    <div v-if="$slots['right-icon']" class="input-group__icon">
+      <slot name="right-icon" class=".input-group_icon и .input-group_icon-right" />
     </div>
   </div>
 </template>
@@ -15,6 +27,60 @@
 <script>
 export default {
   name: 'UiInput',
+
+  inheritAttrs: false,
+
+  props: {
+    small: {
+      type: Boolean,
+    },
+    rounded: {
+      type: Boolean,
+    },
+    multiline: {
+      type: Boolean,
+    },
+    modelValue: String,
+    modelModifiers: {
+      type: Object,
+      default: () => {
+        return {};
+      },
+    },
+  },
+
+  emits: ['update:modelValue'],
+
+  computed: {
+    elem() {
+      if (this.multiline) {
+        return 'textarea';
+      }
+      return 'input';
+    },
+    iconClasses() {
+      let classes = '';
+      if (this.$slots['left-icon']) {
+        classes = `${classes} input-group_icon-left`;
+      }
+      if (this.$slots['right-icon']) {
+        classes = `${classes} input-group_icon-right`;
+      }
+      return classes ? `input-group_icon ${classes}` : classes;
+    },
+    inputEvent() {
+      return this.modelModifiers.lazy ? 'change' : 'input';
+    },
+  },
+
+  methods: {
+    focus() {
+      this.$refs['input'].focus();
+    },
+    onInput(e) {
+      this.$emit('update:modelValue', e.target.value);
+    },
+  },
 };
 </script>
 
