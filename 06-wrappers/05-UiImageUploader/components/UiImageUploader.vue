@@ -1,8 +1,20 @@
 <template>
   <div class="image-uploader">
-    <label class="image-uploader__preview image-uploader__preview-loading" style="--bg-url: url('/link.jpeg')">
-      <span class="image-uploader__text">Загрузить изображение</span>
-      <input type="file" accept="image/*" class="image-uploader__input" />
+    <label
+      class="image-uploader__preview"
+      :class="{ 'image-uploader__preview-loading': isUploading }"
+      :style="backgroundImage"
+      @click="clearInput"
+    >
+      <span class="image-uploader__text">{{ labelText }}</span>
+      <input
+        ref="input"
+        type="file"
+        accept="image/*"
+        class="image-uploader__input"
+        v-bind="$attrs"
+        @change="onChange"
+      />
     </label>
   </div>
 </template>
@@ -10,7 +22,99 @@
 <script>
 export default {
   name: 'UiImageUploader',
+
+  inheritAttrs: false,
+
+  props: {
+    preview: String,
+    uploader: Function,
+  },
+
+  emits: ['select', 'upload', 'error', 'remove'],
+
+  data() {
+    return {
+      States,
+      isUploading: false,
+      isUploadingError: false,
+      newImagePreview: '',
+      isEmpty: !this.preview,
+    };
+  },
+
+  computed: {
+    state() {
+      if (this.isUploading) {
+        return States.Uploading;
+      } else if (this.backgroundImage && !this.isEmpty) {
+        return States.Filled;
+      }
+      return States.Empty;
+    },
+    labelText() {
+      switch (this.state) {
+        case States.Uploading:
+          return 'Загрузка...';
+        case States.Filled:
+          return 'Удалить изображение';
+        default:
+          return 'Загрузить изображение';
+      }
+    },
+    backgroundImage() {
+      let backgroundImage = '';
+      if (this.newImagePreview) {
+        backgroundImage = `--bg-url: url("${this.newImagePreview}")`;
+      } else if (this.preview) {
+        backgroundImage = `--bg-url: url('${this.preview}')`;
+      }
+      return backgroundImage;
+    },
+  },
+
+  methods: {
+    async onChange() {
+      this.isUploadingError = false;
+      const newFile = this.$refs.input.files[0];
+      this.selectFile(newFile);
+      if (this.uploader) {
+        await this.uploadFile(newFile);
+      }
+    },
+    selectFile(file) {
+      this.isEmpty = false;
+      this.$emit('select', file);
+      this.newImagePreview = URL.createObjectURL(file);
+    },
+    async uploadFile(file) {
+      this.isUploading = true;
+      try {
+        const uploadResponse = await this.uploader(file);
+        this.$emit('upload', uploadResponse);
+      } catch (error) {
+        this.isUploadingError = true;
+        this.clearInput();
+        this.$emit('error', error);
+      }
+      this.isUploading = false;
+    },
+    clearInput(event) {
+      if (this.state === States.Filled || this.isUploadingError) {
+        event?.preventDefault();
+        this.isEmpty = true;
+        this.newImagePreview = '';
+        this.$refs.input.value = null;
+        this.$emit('remove');
+      }
+    },
+  },
 };
+
+const States = Object.freeze({
+  Empty: 'Empty',
+  Uploading: 'Uploading',
+  Filled: 'Filled',
+});
 </script>
 
 <style scoped>
