@@ -1,5 +1,5 @@
 <template>
-  <component :is="tag" :class="composedClass" :type="composedType">
+  <component :is="tag" class="button" :class="composedClass" :type="composedType">
     <slot />
   </component>
 </template>
@@ -25,8 +25,7 @@ export default {
 
   computed: {
     composedClass() {
-      const buttonBlockClass = this.block ? 'button_block' : '';
-      return `button button_${this.variant} ${buttonBlockClass}`;
+      return [`button_${this.variant}`, { button_block: this.block }];
     },
     composedType() {
       if (this.type) {

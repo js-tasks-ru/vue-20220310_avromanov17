@@ -1,7 +1,7 @@
 <template>
   <div class="input-group" :class="iconClasses">
-    <div v-if="$slots['left-icon']" class="input-group__icon">
-      <slot name="left-icon" class="input-group_icon input-group_icon-left" />
+    <div v-if="$slots['left-icon']" class="input-group__icon" :class="{ 'input-group_icon-left': $slots['left-icon'] }">
+      <slot name="left-icon" />
     </div>
 
     <component
@@ -18,8 +18,12 @@
     >
     </component>
 
-    <div v-if="$slots['right-icon']" class="input-group__icon">
-      <slot name="right-icon" class=".input-group_icon и .input-group_icon-right" />
+    <div
+      v-if="$slots['right-icon']"
+      class="input-group__icon"
+      :class="{ 'input-group_icon-right': $slots['right-icon'] }"
+    >
+      <slot name="right-icon" />
     </div>
   </div>
 </template>
@@ -59,14 +63,11 @@ export default {
       return 'input';
     },
     iconClasses() {
-      let classes = '';
-      if (this.$slots['left-icon']) {
-        classes = `${classes} input-group_icon-left`;
-      }
-      if (this.$slots['right-icon']) {
-        classes = `${classes} input-group_icon-right`;
-      }
-      return classes ? `input-group_icon ${classes}` : classes;
+      return {
+        'input-group_icon': this.$slots['left-icon'] || this.$slots['right-icon'],
+        'input-group_icon-left': this.$slots['left-icon'],
+        'input-group_icon-right': this.$slots['right-icon'],
+      };
     },
     inputEvent() {
       return this.modelModifiers.lazy ? 'change' : 'input';
