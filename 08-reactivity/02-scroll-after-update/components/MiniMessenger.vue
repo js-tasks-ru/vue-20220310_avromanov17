@@ -34,6 +34,7 @@ export default {
   methods: {
     handleSendSubmit() {
       this.send();
+      this.scrollToLastMessage();
     },
 
     send() {
@@ -42,6 +43,11 @@ export default {
         text: this.newMessage,
       });
       this.newMessage = '';
+    },
+
+    async scrollToLastMessage() {
+      await this.$nextTick();
+      this.$refs.items.pop().scrollIntoView({ behavior: 'smooth' });
     },
   },
 };
