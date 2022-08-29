@@ -9,6 +9,7 @@
 import { SensorsDataController } from '../services/SensorsDataController';
 import { SensorsDataStreamingService } from '../services/SensorsDataStreamingService';
 import SensorsDataRow from './SensorsDataRow';
+import { toRefs } from '@vue/reactivity';
 
 export default {
   name: 'SensorsDataView',
@@ -42,7 +43,12 @@ export default {
     },
 
     setData(sensors) {
-      this.sensors = sensors;
+      if (this.sensors) {
+        const sensorRefs = toRefs(this.sensors);
+        Object.keys(sensors).forEach((key) => (sensorRefs[key].value = { ...sensors[key] }));
+      } else {
+        this.sensors = sensors;
+      }
     },
   },
 };
